@@ -1,19 +1,19 @@
 package jm.task.core.jdbc.exception;
 
-public class DatabaseException extends RuntimeException {
+public class ConnectionDatabaseException extends RuntimeException {
 
-    public DatabaseException() {
+    public ConnectionDatabaseException() {
     }
 
-    public DatabaseException(String message) {
+    public ConnectionDatabaseException(String message) {
         super(message);
     }
 
-    public DatabaseException(String message, Throwable cause) {
+    public ConnectionDatabaseException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public DatabaseException(Throwable cause) {
+    public ConnectionDatabaseException(Throwable cause) {
         super(cause);
     }
 }
