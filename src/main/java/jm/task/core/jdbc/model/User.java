@@ -1,21 +1,26 @@
 package jm.task.core.jdbc.model;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-@Table
+@Entity
+@Table(name = "user", schema = "pp_1_1_3_jdbc_hibernate")
 public class User {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(length = 255, nullable = false)
     private String name;
 
-    @Column
+    @Column(name = "last_name", length = 255, nullable = false)
     private String lastName;
 
-    @Column
+    @Column(nullable = false)
     private Byte age;
 
     public User() {

@@ -1,6 +1,9 @@
 package jm.task.core.jdbc.util;
 
 import jm.task.core.jdbc.exception.ConnectionDatabaseException;
+import jm.task.core.jdbc.model.User;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -15,9 +18,9 @@ public class Util {
         throw new IllegalStateException("Utility class");
     }
 
-    public static Connection getConnection() throws ClassNotFoundException, SQLException {
+    public static Connection getJdbcConnection() throws ClassNotFoundException, SQLException {
         Properties properties = new Properties();
-        try (FileReader readerProperties = new FileReader("src/main/resources/db.properties")) {
+        try (FileReader readerProperties = new FileReader("src/main/resources/jdbc.properties")) {
             properties.load(readerProperties);
 
             String driver = properties.getProperty("db.driver");
@@ -30,5 +33,11 @@ public class Util {
         } catch (IOException e) {
             throw new ConnectionDatabaseException(e);
         }
+    }
+
+    public static SessionFactory getSessionFactory() {
+        return new Configuration()
+                .addAnnotatedClass(User.class)
+                .buildSessionFactory();
     }
 }

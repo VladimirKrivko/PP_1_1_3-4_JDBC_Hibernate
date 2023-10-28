@@ -17,7 +17,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     {
         try {
-            this.connection = Util.getConnection();
+            this.connection = Util.getJdbcConnection();
         } catch (ClassNotFoundException | SQLException e) {
             throw new ConnectionDatabaseException(e);
         }
