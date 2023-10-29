@@ -9,14 +9,14 @@ import org.hibernate.query.Query;
 import java.util.List;
 
 public class UserDaoHibernateImpl implements UserDao {
-    private final SessionFactory sessionFactory;
+    private static final UserDaoHibernateImpl INSTANCE = new UserDaoHibernateImpl();
+    private final SessionFactory sessionFactory = Util.getSessionFactory();
 
-    {
-        sessionFactory = Util.getSessionFactory();
+    private UserDaoHibernateImpl() {
     }
 
-    public UserDaoHibernateImpl() {
-
+    public static UserDaoHibernateImpl getInstance() {
+        return INSTANCE;
     }
 
     @Override
@@ -65,7 +65,6 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public List<User> getAllUsers() {
-
         try (Session session = sessionFactory.openSession()) {
             Query<User> query = session.createNativeQuery(SqlQueries.GET_ALL_USERS, User.class);
             return query.getResultList();
