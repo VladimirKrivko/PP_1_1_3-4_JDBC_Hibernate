@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoJDBCImpl implements UserDao {
-    public static final UserDaoJDBCImpl INSTANCE = new UserDaoJDBCImpl();
+    private static final UserDaoJDBCImpl INSTANCE = new UserDaoJDBCImpl();
 
     private UserDaoJDBCImpl() {
     }
