@@ -16,6 +16,7 @@ public class UserDaoJDBCImpl implements UserDao {
     private static final UserDaoJDBCImpl INSTANCE = new UserDaoJDBCImpl();
 
     private UserDaoJDBCImpl() {
+
     }
 
     public static UserDaoJDBCImpl getInstance() {
