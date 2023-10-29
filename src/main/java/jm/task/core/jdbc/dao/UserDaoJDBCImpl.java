@@ -13,57 +13,58 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoJDBCImpl implements UserDao {
-    private final Connection connection;
+    public static final UserDaoJDBCImpl INSTANCE = new UserDaoJDBCImpl();
 
-    {
-        try {
-            this.connection = Util.getJdbcConnection();
-        } catch (ClassNotFoundException | SQLException e) {
-            throw new ConnectionDatabaseException(e);
-        }
+    private UserDaoJDBCImpl() {
     }
 
-    public UserDaoJDBCImpl() {
+    public static UserDaoJDBCImpl getInstance() {
+        return INSTANCE;
     }
 
     public void createUsersTable() {
-        try (Statement statement = connection.createStatement()) {
+        try (Connection connection = Util.getJdbcConnection();
+             Statement statement = connection.createStatement()) {
             statement.execute(SqlQueries.CREATE_USER_TABLES);
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             throw new ConnectionDatabaseException(e);
         }
     }
 
     public void dropUsersTable() {
-        try (Statement statement = connection.createStatement()) {
+        try (Connection connection = Util.getJdbcConnection();
+             Statement statement = connection.createStatement()) {
             statement.execute(SqlQueries.DROP_USER_TABLE);
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             throw new ConnectionDatabaseException(e);
         }
     }
 
     public void saveUser(String name, String lastName, byte age) {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(SqlQueries.SAVE_USER)) {
+        try (Connection connection = Util.getJdbcConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(SqlQueries.SAVE_USER)) {
             preparedStatement.setString(1, name);
             preparedStatement.setString(2, lastName);
             preparedStatement.setByte(3, age);
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             throw new ConnectionDatabaseException(e);
         }
     }
 
     public void removeUserById(long id) {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(SqlQueries.REMOVE_USER_BY_ID)) {
+        try (Connection connection = Util.getJdbcConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(SqlQueries.REMOVE_USER_BY_ID)) {
             preparedStatement.setLong(1, id);
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             throw new ConnectionDatabaseException(e);
         }
     }
 
     public List<User> getAllUsers() {
-        try (Statement statement = connection.createStatement();
+        try (Connection connection = Util.getJdbcConnection();
+             Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(SqlQueries.GET_ALL_USERS)) {
             List<User> users = new ArrayList<>();
 
@@ -76,7 +77,7 @@ public class UserDaoJDBCImpl implements UserDao {
                 users.add(user);
             }
             return users;
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             throw new ConnectionDatabaseException(e);
         }
     }
