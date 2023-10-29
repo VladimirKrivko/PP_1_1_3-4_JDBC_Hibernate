@@ -1,0 +1,9 @@
+hibernate.dialect=?
+hibernate.connection.driver_class=?
+hibernate.connection.url=?
+hibernate.connection.username=?
+hibernate.connection.password=?
+
+hibernate.current_session_context_class=?
+hibernate.show_sql=?
+hibernate.hbm2ddl.auto=?
