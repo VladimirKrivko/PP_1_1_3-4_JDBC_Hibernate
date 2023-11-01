@@ -13,40 +13,25 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 public class Util {
-    private static final Connection JDBC_CONNECTION = initialConnection();
-    public static final SessionFactory SESSION_FACTORY = initialSessionFactory();
+    private static Connection jdbcConnection;
+    private static SessionFactory sessionFactory;
 
     private Util() {
         throw new IllegalStateException("Utility class");
     }
 
     public static SessionFactory getSessionFactory() {
-        return SESSION_FACTORY;
+        sessionFactory = new Configuration()
+                .addAnnotatedClass(User.class)
+                .buildSessionFactory();
+        return sessionFactory;
     }
 
     public static void closeSessionFactory() {
-        SESSION_FACTORY.close();
+        sessionFactory.close();
     }
 
     public static Connection getJdbcConnection() {
-        return JDBC_CONNECTION;
-    }
-
-    public static void closeJdbcConnection() {
-        try {
-            JDBC_CONNECTION.close();
-        } catch (SQLException e) {
-            throw new ConnectionDatabaseException("error closing database connection", e);
-        }
-    }
-
-    private static SessionFactory initialSessionFactory() {
-        return new Configuration()
-                .addAnnotatedClass(User.class)
-                .buildSessionFactory();
-    }
-
-    private static Connection initialConnection() {
         Properties properties = new Properties();
         try (FileReader readerProperties = new FileReader("src/main/resources/jdbc.properties")) {
             properties.load(readerProperties);
@@ -57,9 +42,41 @@ public class Util {
             String password = properties.getProperty("db.password");
 
             Class.forName(driver);
-            return DriverManager.getConnection(url, userName, password);
+            jdbcConnection = DriverManager.getConnection(url, userName, password);
+            return jdbcConnection;
         } catch (ClassNotFoundException | IOException | SQLException e) {
             throw new ConnectionDatabaseException(e);
         }
     }
+
+    public static void closeJdbcConnection() {
+        try {
+            jdbcConnection.close();
+        } catch (SQLException e) {
+            throw new ConnectionDatabaseException("error closing database connection", e);
+        }
+    }
+
+//    private static SessionFactory initialSessionFactory() {
+//        return new Configuration()
+//                .addAnnotatedClass(User.class)
+//                .buildSessionFactory();
+//    }
+
+//    private static Connection initialConnection() {
+//        Properties properties = new Properties();
+//        try (FileReader readerProperties = new FileReader("src/main/resources/jdbc.properties")) {
+//            properties.load(readerProperties);
+//
+//            String driver = properties.getProperty("db.driver");
+//            String url = properties.getProperty("db.url");
+//            String userName = properties.getProperty("db.username");
+//            String password = properties.getProperty("db.password");
+//
+//            Class.forName(driver);
+//            return DriverManager.getConnection(url, userName, password);
+//        } catch (ClassNotFoundException | IOException | SQLException e) {
+//            throw new ConnectionDatabaseException(e);
+//        }
+//    }
 }
