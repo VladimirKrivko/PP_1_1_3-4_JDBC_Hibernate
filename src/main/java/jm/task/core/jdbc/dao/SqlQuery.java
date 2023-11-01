@@ -4,7 +4,7 @@ public enum SqlQuery {
     CREATE_USER_TABLES("""
             CREATE TABLE IF NOT EXISTS `user`
             (
-                `id`        bigint         NOT NULL AUTO_INCREMENT,
+                `id`        bigint       NOT NULL AUTO_INCREMENT,
                 `name`      varchar(255) NOT NULL,
                 `last_name` varchar(255) NOT NULL,
                 `age`       tinyint      NOT NULL,
