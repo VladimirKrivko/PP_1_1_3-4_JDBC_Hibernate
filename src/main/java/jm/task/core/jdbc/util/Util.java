@@ -13,12 +13,40 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 public class Util {
+    private static final Connection JDBC_CONNECTION = initialConnection();
+    public static final SessionFactory SESSION_FACTORY = initialSessionFactory();
 
     private Util() {
         throw new IllegalStateException("Utility class");
     }
 
-    public static Connection getJdbcConnection() throws ClassNotFoundException, SQLException {
+    public static SessionFactory getSessionFactory() {
+        return SESSION_FACTORY;
+    }
+
+    public static void closeSessionFactory() {
+        SESSION_FACTORY.close();
+    }
+
+    public static Connection getJdbcConnection() {
+        return JDBC_CONNECTION;
+    }
+
+    public static void closeJdbcConnection() {
+        try {
+            JDBC_CONNECTION.close();
+        } catch (SQLException e) {
+            throw new ConnectionDatabaseException("error closing database connection", e);
+        }
+    }
+
+    private static SessionFactory initialSessionFactory() {
+        return new Configuration()
+                .addAnnotatedClass(User.class)
+                .buildSessionFactory();
+    }
+
+    private static Connection initialConnection() {
         Properties properties = new Properties();
         try (FileReader readerProperties = new FileReader("src/main/resources/jdbc.properties")) {
             properties.load(readerProperties);
@@ -30,14 +58,8 @@ public class Util {
 
             Class.forName(driver);
             return DriverManager.getConnection(url, userName, password);
-        } catch (IOException e) {
+        } catch (ClassNotFoundException | IOException | SQLException e) {
             throw new ConnectionDatabaseException(e);
         }
-    }
-
-    public static SessionFactory getSessionFactory() {
-        return new Configuration()
-                .addAnnotatedClass(User.class)
-                .buildSessionFactory();
     }
 }
