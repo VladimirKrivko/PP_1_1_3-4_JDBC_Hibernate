@@ -3,6 +3,8 @@ package jm.task.core.jdbc.dao;
 import jm.task.core.jdbc.exception.ConnectionDatabaseException;
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,9 +13,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class UserDaoJDBCImpl implements UserDao {
+    public static final Logger logger = LoggerFactory.getLogger(UserDaoJDBCImpl.class);
     private static final UserDaoJDBCImpl INSTANCE = new UserDaoJDBCImpl();
     private static final Connection CONNECTION = Util.getJdbcConnection();
 
@@ -45,9 +47,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
-        PreparedStatement preparedStatement = null;
-        try {
-            preparedStatement = CONNECTION.prepareStatement(SqlQuery.SAVE_USER.getQuery());
+        try (PreparedStatement preparedStatement = CONNECTION.prepareStatement(SqlQuery.SAVE_USER.getQuery())) {
             CONNECTION.setAutoCommit(false);
             preparedStatement.setString(1, name);
             preparedStatement.setString(2, lastName);
@@ -55,44 +55,40 @@ public class UserDaoJDBCImpl implements UserDao {
             preparedStatement.executeUpdate();
             CONNECTION.commit();
         } catch (Exception ex) {
+            logger.error("failed to save user due to error - %s".formatted(ex.getMessage()));
             try {
                 CONNECTION.rollback();
             } catch (SQLException e) {
                 throw new ConnectionDatabaseException(e);
             }
         } finally {
-            if (Objects.nonNull(preparedStatement)) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    throw new ConnectionDatabaseException(e);
-                }
+            try {
+                CONNECTION.setAutoCommit(true);
+            } catch (SQLException e) {
+                logger.error("error setting autoCommit to true - %s".formatted(e.getMessage()));
             }
         }
     }
 
     @Override
     public void removeUserById(long id) {
-        PreparedStatement preparedStatement = null;
-        try {
-            preparedStatement = CONNECTION.prepareStatement(SqlQuery.REMOVE_USER_BY_ID.getQuery());
+        try (PreparedStatement preparedStatement = CONNECTION.prepareStatement(SqlQuery.REMOVE_USER_BY_ID.getQuery())) {
             CONNECTION.setAutoCommit(false);
             preparedStatement.setLong(1, id);
             preparedStatement.executeUpdate();
             CONNECTION.commit();
         } catch (Exception ex) {
+            logger.error("failed to removed user by id = %d due to error - %s".formatted(id, ex.getMessage()));
             try {
                 CONNECTION.rollback();
             } catch (SQLException e) {
                 throw new ConnectionDatabaseException(e);
             }
         } finally {
-            if (Objects.nonNull(preparedStatement)) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    throw new ConnectionDatabaseException(e);
-                }
+            try {
+                CONNECTION.setAutoCommit(true);
+            } catch (SQLException e) {
+                logger.error("error setting autoCommit to true - %s".formatted(e.getMessage()));
             }
         }
     }
@@ -120,7 +116,7 @@ public class UserDaoJDBCImpl implements UserDao {
     @Override
     public void cleanUsersTable() {
         try (Statement statement = CONNECTION.createStatement()) {
-            statement.execute(SqlQuery.CLEAR_USERS_TABLE.getQuery());
+            statement.execute(SqlQuery.CLEAN_USERS_TABLE.getQuery());
         } catch (SQLException e) {
             throw new ConnectionDatabaseException(e);
         }
