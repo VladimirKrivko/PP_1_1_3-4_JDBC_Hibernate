@@ -1,16 +1,18 @@
 package jm.task.core.jdbc.dao;
 
-import jm.task.core.jdbc.exception.ConnectionDatabaseException;
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
 
 public class UserDaoHibernateImpl implements UserDao {
+    public static final Logger logger = LoggerFactory.getLogger(UserDaoHibernateImpl.class);
     private static final UserDaoHibernateImpl INSTANCE = new UserDaoHibernateImpl();
     private final SessionFactory sessionFactory = Util.getSessionFactory();
 
@@ -50,8 +52,8 @@ public class UserDaoHibernateImpl implements UserDao {
                 session.persist(new User(name, lastName, age));
                 session.getTransaction().commit();
             } catch (Exception e) {
+                logger.warn("failed to save user due to error - %s".formatted(e.getMessage()));
                 session.getTransaction().rollback();
-                throw new ConnectionDatabaseException("error saving user name=%s, lastname=%s, age=%s%n".formatted(name, lastName, age), e);
             }
         }
     }
@@ -68,8 +70,8 @@ public class UserDaoHibernateImpl implements UserDao {
                 }
                 session.getTransaction().commit();
             } catch (Exception e) {
+                logger.warn("failed to removed user by id = %d due to error - %s".formatted(id, e.getMessage()));
                 session.getTransaction().rollback();
-                throw new ConnectionDatabaseException("error removing user with id=%d%n".formatted(id), e);
             }
         }
     }
