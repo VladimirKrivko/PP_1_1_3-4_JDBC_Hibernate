@@ -56,27 +56,4 @@ public class Util {
             throw new ConnectionDatabaseException("error closing database connection", e);
         }
     }
-
-//    private static SessionFactory initialSessionFactory() {
-//        return new Configuration()
-//                .addAnnotatedClass(User.class)
-//                .buildSessionFactory();
-//    }
-
-//    private static Connection initialConnection() {
-//        Properties properties = new Properties();
-//        try (FileReader readerProperties = new FileReader("src/main/resources/jdbc.properties")) {
-//            properties.load(readerProperties);
-//
-//            String driver = properties.getProperty("db.driver");
-//            String url = properties.getProperty("db.url");
-//            String userName = properties.getProperty("db.username");
-//            String password = properties.getProperty("db.password");
-//
-//            Class.forName(driver);
-//            return DriverManager.getConnection(url, userName, password);
-//        } catch (ClassNotFoundException | IOException | SQLException e) {
-//            throw new ConnectionDatabaseException(e);
-//        }
-//    }
 }
