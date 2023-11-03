@@ -11,6 +11,9 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Objects;
 
+import static org.hibernate.resource.transaction.spi.TransactionStatus.ACTIVE;
+import static org.hibernate.resource.transaction.spi.TransactionStatus.MARKED_ROLLBACK;
+
 public class UserDaoHibernateImpl implements UserDao {
     public static final Logger logger = LoggerFactory.getLogger(UserDaoHibernateImpl.class);
     private static final UserDaoHibernateImpl INSTANCE = new UserDaoHibernateImpl();
@@ -53,7 +56,11 @@ public class UserDaoHibernateImpl implements UserDao {
                 session.getTransaction().commit();
             } catch (Exception e) {
                 logger.warn("failed to save user due to error - %s".formatted(e.getMessage()));
-                session.getTransaction().rollback();
+                if (session.getTransaction().getStatus() == ACTIVE
+                    || session.getTransaction().getStatus() == MARKED_ROLLBACK) {
+
+                    session.getTransaction().rollback();
+                }
             }
         }
     }
@@ -71,7 +78,11 @@ public class UserDaoHibernateImpl implements UserDao {
                 session.getTransaction().commit();
             } catch (Exception e) {
                 logger.warn("failed to removed user by id = %d due to error - %s".formatted(id, e.getMessage()));
-                session.getTransaction().rollback();
+                if (session.getTransaction().getStatus() == ACTIVE
+                    || session.getTransaction().getStatus() == MARKED_ROLLBACK) {
+
+                    session.getTransaction().rollback();
+                }
             }
         }
     }
