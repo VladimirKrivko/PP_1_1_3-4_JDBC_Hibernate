@@ -14,7 +14,7 @@ public enum SqlQuery {
     SAVE_USER("INSERT INTO `user`(name, last_name, age) VALUE (?, ?, ?)"),
     REMOVE_USER_BY_ID("DELETE u FROM `user` u WHERE u.id=?"),
     GET_ALL_USERS("SELECT id, name, last_name, age FROM `user`"),
-    CLEAN_USERS_TABLE("TRUNCATE TABLE `user`");
+    CLEAN_USERS_TABLE("DELETE FROM `user`");
 
     private final String query;
 
