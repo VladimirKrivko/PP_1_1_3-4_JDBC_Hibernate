@@ -14,16 +14,16 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserDaoJDBCImpl implements UserDao {
-    public static final Logger logger = LoggerFactory.getLogger(UserDaoJDBCImpl.class);
-    private static final UserDaoJDBCImpl INSTANCE = new UserDaoJDBCImpl();
+public class UserDaoJdbcImpl implements UserDao {
+    public static final Logger logger = LoggerFactory.getLogger(UserDaoJdbcImpl.class);
+    private static final UserDaoJdbcImpl INSTANCE = new UserDaoJdbcImpl();
     private static final Connection CONNECTION = Util.getJdbcConnection();
 
-    private UserDaoJDBCImpl() {
+    private UserDaoJdbcImpl() {
 
     }
 
-    public static UserDaoJDBCImpl getInstance() {
+    public static UserDaoJdbcImpl getInstance() {
         return INSTANCE;
     }
 
