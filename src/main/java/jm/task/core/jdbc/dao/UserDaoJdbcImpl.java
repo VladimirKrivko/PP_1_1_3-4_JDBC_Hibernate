@@ -116,9 +116,22 @@ public class UserDaoJdbcImpl implements UserDao {
     @Override
     public void cleanUsersTable() {
         try (Statement statement = CONNECTION.createStatement()) {
-            statement.execute(SqlQuery.CLEAN_USERS_TABLE.getQuery());
-        } catch (SQLException e) {
-            throw new ConnectionDatabaseException(e);
+            CONNECTION.setAutoCommit(false);
+            statement.executeUpdate(SqlQuery.CLEAN_USERS_TABLE.getQuery());
+            CONNECTION.commit();
+        } catch (Exception ex) {
+            logger.error("failed to cleaned users table due to error - %s".formatted(ex.getMessage()));
+            try {
+                CONNECTION.rollback();
+            } catch (SQLException e) {
+                throw new ConnectionDatabaseException(e);
+            }
+        } finally {
+            try {
+                CONNECTION.setAutoCommit(true);
+            } catch (SQLException e) {
+                logger.error("error setting autoCommit to true - %s".formatted(e.getMessage()));
+            }
         }
     }
 }

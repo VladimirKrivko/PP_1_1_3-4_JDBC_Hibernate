@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static org.hibernate.resource.transaction.spi.TransactionStatus.ACTIVE;
+import static org.hibernate.resource.transaction.spi.TransactionStatus.COMMITTED;
 import static org.hibernate.resource.transaction.spi.TransactionStatus.MARKED_ROLLBACK;
 
 public class UserDaoHibernateImpl implements UserDao {
@@ -62,6 +63,9 @@ public class UserDaoHibernateImpl implements UserDao {
                     session.getTransaction().rollback();
                 }
             }
+            if (session.getTransaction().getStatus() == COMMITTED) {
+                logger.info("User with name – %s added to the database".formatted(name));
+            }
         }
     }
 
@@ -73,7 +77,6 @@ public class UserDaoHibernateImpl implements UserDao {
                 User deletableUser = session.get(User.class, id);
                 if (Objects.nonNull(deletableUser)) {
                     session.delete(deletableUser);
-                    session.flush();
                 }
                 session.getTransaction().commit();
             } catch (Exception e) {
@@ -83,6 +86,9 @@ public class UserDaoHibernateImpl implements UserDao {
 
                     session.getTransaction().rollback();
                 }
+            }
+            if (session.getTransaction().getStatus() == COMMITTED) {
+                logger.info("User with id – %d removed from database".formatted(id));
             }
         }
     }
@@ -97,10 +103,23 @@ public class UserDaoHibernateImpl implements UserDao {
     @Override
     public void cleanUsersTable() {
         try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            Query<User> query = session.createNativeQuery(SqlQuery.CLEAN_USERS_TABLE.getQuery(), User.class);
-            query.executeUpdate();
-            session.getTransaction().commit();
+            int numberOfUsersInDatabase = 0;
+            try {
+                session.beginTransaction();
+                Query<?> query = session.createQuery("delete from User");
+                numberOfUsersInDatabase = query.executeUpdate();
+                session.getTransaction().commit();
+            } catch (Exception ex) {
+                logger.warn("failed to clean users table due to error - %s".formatted(ex.getMessage()));
+                if (session.getTransaction().getStatus() == ACTIVE
+                    || session.getTransaction().getStatus() == MARKED_ROLLBACK) {
+
+                    session.getTransaction().rollback();
+                }
+            }
+            if (session.getTransaction().getStatus() == COMMITTED) {
+                logger.info("Users table was cleaned. Total of %d users have been deleted.".formatted(numberOfUsersInDatabase));
+            }
         }
     }
 }
